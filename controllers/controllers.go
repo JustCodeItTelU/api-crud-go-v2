@@ -18,8 +18,11 @@ func NewHandler(db *gorm.DB) *Handler {
 	}
 }
 
-func beforeCreate(tx *gorm.DB) (err error) {
-	t := models.Topic{}
+type Topic struct {
+	models.Topic
+}
+
+func (t *Topic) beforeCreated(tx *gorm.DB) (err error) {
 	if t.ID == uuid.Nil {
 		uuid := uuid.New()
 		t.ID = uuid
@@ -38,13 +41,10 @@ func (h *Handler) CreateTopic(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(err.Error())
 	}
 
-	res := models.Response{
-		Code:    201,
-		Message: "Success Create Topic",
-		Data:    topic,
-	}
-
-	return c.Status(http.StatusCreated).JSON(res)
+	return c.Status(http.StatusCreated).JSON(fiber.Map{
+		"message": "success create topic",
+		"data":    topic,
+	})
 }
 
 func (h *Handler) GetTopics(c *fiber.Ctx) error {
@@ -68,17 +68,11 @@ func (h *Handler) GetTopicByID(c *fiber.Ctx) error {
 		return c.Status(http.StatusNotFound).JSON(err.Error())
 	}
 
-	res := models.Response{
-		Code:    200,
-		Message: "Success get Topic",
-		Data: models.Details{
-			ID:       topic.ID,
-			Title:    topic.Title,
-			Content:  topic.Content,
-			Comments: comment,
-		},
-	}
-	return c.Status(http.StatusOK).JSON(res)
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"Message":  "success get Topic",
+		"Data":     topic,
+		"Comments": comment,
+	})
 }
 
 func (h *Handler) UpdateTopic(c *fiber.Ctx) error {
@@ -89,13 +83,12 @@ func (h *Handler) UpdateTopic(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(err.Error())
 	}
-	res := models.Response{
-		Code:    200,
-		Message: "Success Update Topic",
-		Data:    topic,
-	}
+
 	h.db.Model(&topic).Updates(topic)
-	return c.Status(http.StatusOK).JSON(res)
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"Message": "Success Update Topic",
+		"Data":    topic,
+	})
 }
 
 func (h *Handler) DeleteTopic(c *fiber.Ctx) error {
@@ -107,9 +100,8 @@ func (h *Handler) DeleteTopic(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(err.Error())
 	}
 	h.db.Delete(&topic)
-	res := models.Response{
-		Code:    200,
-		Message: "Success Delete Topic",
-	}
-	return c.Status(http.StatusOK).JSON(res)
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"Message": "Success Delete Topic",
+	})
 }

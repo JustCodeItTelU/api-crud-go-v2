@@ -17,8 +17,8 @@ func Setup(app *fiber.App) {
 	h := controllers.NewHandler(db)
 	app.Post("/api/createTopic", h.CreateTopic)
 	app.Get("/api/getTopics", h.GetTopics)
-	app.Get("/api/getTopicID/{id}", h.GetTopicByID)
-	app.Put("/api/updateTopic/{id}", h.UpdateTopic)
-	app.Delete("/api/deleteTopic/{id}", h.DeleteTopic)
+	app.Get("/api/getTopicID/:id", h.GetTopicByID)
+	app.Put("/api/updateTopic/:id", h.UpdateTopic)
+	app.Delete("/api/deleteTopic/:id", h.DeleteTopic)
 
 }
